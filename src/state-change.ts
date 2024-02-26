@@ -1,3 +1,4 @@
+import { DetoxElementsOrMatcher } from "./internal-helpers";
 import { waitForInvisible, waitForVisible } from "./waiters";
 
 /**
@@ -20,7 +21,7 @@ import { waitForInvisible, waitForVisible } from "./waiters";
  * )
  */
 export const verifyChangesToVisible = async (
-  matcher: Detox.NativeMatcher,
+  matcher: DetoxElementsOrMatcher,
   action: () => Promise<void>,
   options?: { atIndex?: number; timeout?: number }
 ) => {
@@ -49,7 +50,7 @@ export const verifyChangesToVisible = async (
  * )
  */
 export const verifyChangesToInvisible = async (
-  matcher: Detox.NativeMatcher,
+  matcher: DetoxElementsOrMatcher,
   action: () => Promise<void>,
   options?: { atIndex?: number; timeout?: number }
 ) => {

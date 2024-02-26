@@ -1,6 +1,6 @@
 {
   "name": "detox-helpers",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Useful helper functions for the detox testing library",
   "type": "module",
   "source": "src/index.ts",

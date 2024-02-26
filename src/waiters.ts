@@ -1,0 +1,86 @@
+import { waitFor } from "detox";
+import { cloneDeep } from "lodash";
+import { DEFAULT_TIMEOUT, makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
+
+/**
+ * Waits for en element to exist until a timeout. This is usefull if
+ * an element is not instantly created
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForExists(by.id("test"));
+ * await waitForExists(by.label("test"), { atIndex: 2 });
+ * await waitForExists(element(by.id("test")));
+ */
+export const waitForExists = async (
+  elementOrMatcher: DetoxElementsOrMatcher,
+  options?: { atIndex?: number; timeout?: number }
+) => {
+  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
+  await waitFor(elem)
+    .toExist()
+    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+};
+
+/**
+ * Waits for en element to be visible until a timeout. This is usefull if
+ * an element is not instantly visible
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForVisible(by.id("test"));
+ * await waitForVisible(by.label("test"), { atIndex: 2 });
+ * await waitForVisible(element(by.id("test")));
+ */
+export const waitForVisible = async (
+  elementOrMatcher: DetoxElementsOrMatcher,
+  options?: { atIndex?: number; timeout?: number }
+) => {
+  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
+  await waitFor(elem)
+    .toBeVisible()
+    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+};
+
+/**
+ * Waits for en element to be invisible until a timeout. This is usefull if
+ * an element needs some time to become invisible
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForInvisible(by.id("test"));
+ * await waitForInvisible(by.label("test"), { atIndex: 2 });
+ * await waitForInvisible(element(by.id("test")));
+ */
+export const waitForInvisible = async (
+  elementOrMatcher: DetoxElementsOrMatcher,
+  options?: { atIndex?: number; timeout?: number }
+) => {
+  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
+  await waitFor(elem)
+    .not.toBeVisible()
+    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+};
+
+/**
+ * Verifies that at least {count} elements of a matcher are visible.
+ * It is possible, that there are more, though
+ * @example
+ * await waitForCountVisible(by.id("test"), 4);
+ * await waitForCountVisible(by.label("test"), 2);
+ * await waitForCountVisible(element(by.id("test")), 5);
+ */
+export const waitForCountVisible = async (
+  elementOrMatcher: Detox.IndexableNativeElement | Detox.NativeMatcher | Detox.NativeElement,
+  count: number
+) => {
+  for (let i = 0; i < count; i++) {
+    /**
+     * Reusing the same element with different indexes fails.
+     * I suspect that applying the index to a matcher which is required
+     * for this function mutates its internal state.
+     * For this reason, cloning it is required.
+     */
+    await waitForVisible(cloneDeep(elementOrMatcher), { atIndex: i });
+  }
+};

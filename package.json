@@ -1,0 +1,47 @@
+{
+  "name": "detox-helpers",
+  "version": "1.0.0",
+  "description": "Useful helper functions for the detox testing library",
+  "type": "module",
+  "source": "src/index.ts",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/code-workers/detox-helpers.git"
+  },
+  "keywords": [
+    "detox",
+    "detoxjs",
+    "app testing",
+    "app automation"
+  ],
+  "author": "Maurice Döpke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/code-workers/detox-helpers/issues"
+  },
+  "homepage": "https://github.com/code-workers/detox-helpers#readme",
+  "private": false,
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "detox": ">=20.0.0",
+    "microbundle": "^0.15.1",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "detox": ">=20.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

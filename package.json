@@ -1,6 +1,6 @@
 {
   "name": "detox-helpers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Useful helper functions for the detox testing library",
   "type": "module",
   "source": "src/index.ts",
@@ -11,6 +11,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle watch"

@@ -19,3 +19,32 @@ export const waitForTap = async (
   await waitForVisible(elem);
   await elem.tap();
 };
+
+/**
+ * Waits for scroll view to be visible and then scrolls to target
+ * @example
+ * await scrollToElement(by.id("scrollView"), by.id("button"), "bottom", 400);
+ */
+export const scrollToElement = async (
+  scrollView: Detox.NativeMatcher,
+  target: DetoxElementsOrMatcher,
+  direction: Detox.Direction,
+  pixels: number
+) => {
+  const targetElem = makeElementFromElementOrMatcher(target);
+  await waitForVisible(scrollView);
+
+  await waitFor(targetElem).toBeVisible().whileElement(scrollView).scroll(pixels, direction);
+};
+
+/**
+ * Waits for scroll view to be visible and then scrolls to specified edge
+ * @example
+ * await scrollToElement(by.id("scrollView"), "bottom");
+ */
+export const scrollToEdge = async (scrollView: Detox.NativeMatcher, edge: Detox.Direction) => {
+  const scrollViewElem = makeElementFromElementOrMatcher(scrollView);
+  await waitForVisible(scrollView);
+
+  await scrollViewElem.scrollTo(edge);
+};

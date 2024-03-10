@@ -24,8 +24,26 @@ export const withoutSynchronization = async (callback: () => Promise<void>) => {
   }
 };
 
+/**
+ *
+ * @returns text from the matched element
+ */
 export const getText = async (elementOrMatcher: DetoxElementsOrMatcher) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher);
   const attrs = await elem.getAttributes();
   return (attrs as any).text as string;
+};
+
+/**
+ *
+ * @returns matcher for a button in a system dialog/alert by button text
+ * @example
+ * await waitForTap(systemDialog("Delete"));
+ * 
+ */
+export const systemDialog = (label: string) => {
+  if (device.getPlatform() === "ios") {
+    return element(by.label(label)).atIndex(0);
+  }
+  return element(by.text(label.toUpperCase()));
 };

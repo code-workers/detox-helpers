@@ -30,12 +30,12 @@ export const scrollToElement = async (
   target: DetoxElementsOrMatcher,
   direction: Detox.Direction,
   pixels: number,
-  scrollPos: [number, number],
+  scrollPos?: [number, number],
 ) => {
   const targetElem = makeElementFromElementOrMatcher(target);
   await waitForVisible(scrollView);
 
-  await waitFor(targetElem).toBeVisible().whileElement(scrollView).scroll(pixels, direction, scrollPos[0] ?? 0.5, scrollPos[1] ?? 0.5);
+  await waitFor(targetElem).toBeVisible().whileElement(scrollView).scroll(pixels, direction, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
 };
 
 /**

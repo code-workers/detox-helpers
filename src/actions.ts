@@ -1,5 +1,5 @@
 import { makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
-import { waitForVisible } from "./waiters";
+import { waitForExists, waitForVisible } from "./waiters";
 
 /**
  * Waits for en element to be visible before tapping it.
@@ -33,7 +33,15 @@ export const scrollToElement = async (
   scrollPos?: [number, number],
 ) => {
   const targetElem = makeElementFromElementOrMatcher(target);
-  await waitForVisible(scrollView);
+  switch (device.getPlatform()) {
+      case "android":
+        await waitForVisible(scrollView);
+        break;
+      case "ios":
+        //for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
+        await waitForExists(scrollView);
+        break;
+    }
 
   await waitFor(targetElem).toBeVisible().whileElement(scrollView).scroll(pixels, direction, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
 };
@@ -45,7 +53,15 @@ export const scrollToElement = async (
  */
 export const scrollToEdge = async (scrollView: Detox.NativeMatcher, edge: Detox.Direction) => {
   const scrollViewElem = makeElementFromElementOrMatcher(scrollView);
-  await waitForVisible(scrollView);
+  switch(device.getPlatform()) {
+    case "android":
+      await waitForVisible(scrollView);
+      break;
+    case "ios":
+      //for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
+      await waitForExists(scrollView);
+      break;
+  }
 
   await scrollViewElem.scrollTo(edge);
 };

@@ -1,4 +1,7 @@
-import { makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
+import {
+  type DetoxElementsOrMatcher,
+  makeElementFromElementOrMatcher,
+} from "./internal-helpers";
 import { waitForExists, waitForVisible } from "./waiters";
 
 /**
@@ -12,12 +15,15 @@ import { waitForExists, waitForVisible } from "./waiters";
  * await waitForTap(element(by.id("test")));
  */
 export const waitForTap = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
-  await waitForVisible(elem);
-  await elem.tap();
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitForVisible(elem);
+	await elem.tap();
 };
 
 /**
@@ -26,24 +32,27 @@ export const waitForTap = async (
  * await scrollToElement(by.id("scrollView"), by.id("button"), "bottom", 400);
  */
 export const scrollToElement = async (
-  scrollView: Detox.NativeMatcher,
-  target: DetoxElementsOrMatcher,
-  direction: Detox.Direction,
-  pixels: number,
-  scrollPos?: [number, number],
+	scrollView: Detox.NativeMatcher,
+	target: DetoxElementsOrMatcher,
+	direction: Detox.Direction,
+	pixels: number,
+	scrollPos?: [number, number],
 ) => {
-  const targetElem = makeElementFromElementOrMatcher(target);
-  switch (device.getPlatform()) {
-      case "android":
-        await waitForVisible(scrollView);
-        break;
-      case "ios":
-        //for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
-        await waitForExists(scrollView);
-        break;
-    }
+	const targetElem = makeElementFromElementOrMatcher(target);
+	switch (device.getPlatform()) {
+		case "android":
+			await waitForVisible(scrollView);
+			break;
+		case "ios":
+			//for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
+			await waitForExists(scrollView);
+			break;
+	}
 
-  await waitFor(targetElem).toBeVisible().whileElement(scrollView).scroll(pixels, direction, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
+	await waitFor(targetElem)
+		.toBeVisible()
+		.whileElement(scrollView)
+		.scroll(pixels, direction, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
 };
 
 /**
@@ -51,17 +60,21 @@ export const scrollToElement = async (
  * @example
  * await scrollToElement(by.id("scrollView"), "bottom");
  */
-export const scrollToEdge = async (scrollView: Detox.NativeMatcher, edge: Detox.Direction) => {
-  const scrollViewElem = makeElementFromElementOrMatcher(scrollView);
-  switch(device.getPlatform()) {
-    case "android":
-      await waitForVisible(scrollView);
-      break;
-    case "ios":
-      //for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
-      await waitForExists(scrollView);
-      break;
-  }
+export const scrollToEdge = async (
+	scrollView: Detox.NativeMatcher,
+	edge: Detox.Direction,
+	scrollPos?: [number, number],
+) => {
+	const scrollViewElem = makeElementFromElementOrMatcher(scrollView);
+	switch (device.getPlatform()) {
+		case "android":
+			await waitForVisible(scrollView);
+			break;
+		case "ios":
+			//for some reason ios does not consider KeyboardAwareScrollView visible all the time, even though to the user it is
+			await waitForExists(scrollView);
+			break;
+	}
 
-  await scrollViewElem.scrollTo(edge);
+	await scrollViewElem.scrollTo(edge, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
 };

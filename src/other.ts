@@ -43,7 +43,7 @@ export const getText = async (elementOrMatcher: DetoxElementsOrMatcher) => {
  */
 export const systemDialog = (label: string) => {
   if (device.getPlatform() === "ios") {
-    return element(by.label(label)).atIndex(0);
+    return element(by.label(label).and(by.type("_UIAlertControllerActionView")));
   }
   return element(by.text(label.toUpperCase()));
 };

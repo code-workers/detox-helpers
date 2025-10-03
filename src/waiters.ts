@@ -3,7 +3,7 @@ import { cloneDeep } from "lodash";
 import { DEFAULT_TIMEOUT, makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
 
 /**
- * Waits for en element to exist until a timeout. This is usefull if
+ * Waits for en element to exist until a timeout. This is useful if
  * an element is not instantly created
  * @param options.atIndex index of match to use in case of multiple matches
  * @param options.timeout timeout in ms (default: 5000)
@@ -18,6 +18,30 @@ export const waitForExists = async (
 ) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
   await waitFor(elem)
+    .toExist()
+    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+};
+
+/**
+ * Waits for en element to not exist until a timeout. This is useful if
+ * an element is not visible anymore due to e.g. opacity, but needs to be fully gone.
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForNotExists(by.id("test"));
+ * await waitForNotExists(by.label("test"), { atIndex: 2 });
+ * await waitForExwaitForNotExistsists(element(by.id("test")));
+ */
+export const waitForNotExists = async (
+  elementOrMatcher: DetoxElementsOrMatcher,
+  options?: { atIndex?: number; timeout?: number },
+) => {
+  const elem = makeElementFromElementOrMatcher(
+    elementOrMatcher,
+    options?.atIndex,
+  );
+  await waitFor(elem)
+    .not
     .toExist()
     .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };

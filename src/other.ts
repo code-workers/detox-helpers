@@ -1,6 +1,6 @@
 import { device } from "detox";
 import { DetoxElementsOrMatcher, makeElementFromElementOrMatcher } from "./internal-helpers";
-import { waitForExists } from "./waiters";
+import { waitForExists, waitForVisible } from "./waiters";
 
 /**
  * Runs some code without synchronization and turns it on again afterwards, even in
@@ -31,7 +31,7 @@ export const withoutSynchronization = async (callback: () => Promise<void>) => {
  */
 export const getText = async (elementOrMatcher: DetoxElementsOrMatcher) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher);
-  await waitForExists(elem);
+  await device.getPlatform() === "ios" ? waitForVisible(elem) : waitForExists(elem);
   const attrs = await elem.getAttributes();
   return (attrs as any).text as string;
 };

@@ -29,11 +29,17 @@ export const withoutSynchronization = async (callback: () => Promise<void>) => {
  *
  * @returns text from the matched element
  */
-export const getText = async (elementOrMatcher: DetoxElementsOrMatcher) => {
+export const getText = async (elementOrMatcher: DetoxElementsOrMatcher, opts?: { includePlaceholder?: boolean }) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher);
   await (device.getPlatform() === "ios" ? waitForVisible(elem) : waitForExists(elem));
-  const attrs = await elem.getAttributes();
-  return (attrs as any).text as string;
+  const attrs = (await elem.getAttributes()) as { text: string, placeholder: string };
+  const text = attrs.text;
+
+  if (opts?.includePlaceholder && !text.trim().length) {
+    return attrs.placeholder ?? "";
+  }
+
+  return text;
 };
 
 /**

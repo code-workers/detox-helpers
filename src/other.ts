@@ -31,7 +31,7 @@ export const withoutSynchronization = async (callback: () => Promise<void>) => {
  */
 export const getText = async (elementOrMatcher: DetoxElementsOrMatcher) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher);
-  await device.getPlatform() === "ios" ? waitForVisible(elem) : waitForExists(elem);
+  await (device.getPlatform() === "ios" ? waitForVisible(elem) : waitForExists(elem));
   const attrs = await elem.getAttributes();
   return (attrs as any).text as string;
 };

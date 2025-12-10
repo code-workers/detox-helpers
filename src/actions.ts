@@ -1,6 +1,6 @@
 import {
-  type DetoxElementsOrMatcher,
-  makeElementFromElementOrMatcher,
+	type DetoxElementsOrMatcher,
+	makeElementFromElementOrMatcher,
 } from "./internal-helpers";
 import { waitForExists, waitForVisible } from "./waiters";
 
@@ -16,14 +16,25 @@ import { waitForExists, waitForVisible } from "./waiters";
  */
 export const waitForTap = async (
 	elementOrMatcher: DetoxElementsOrMatcher,
-	options?: { atIndex?: number; timeout?: number },
+	options?: { atIndex?: number; timeout?: number; virtual?: boolean },
 ) => {
 	const elem = makeElementFromElementOrMatcher(
 		elementOrMatcher,
 		options?.atIndex,
 	);
 	await waitForVisible(elem);
-	await elem.tap();
+
+	if (options?.virtual) {
+		const { frame } = (await elem.getAttributes()) as {
+			frame: { x: number; y: number; width: number; height: number };
+		};
+		await device.tap({
+			x: Math.round(frame.x + frame.width / 2),
+			y: Math.round(frame.y + frame.height / 2),
+		});
+	} else {
+		await elem.tap();
+	}
 };
 
 /**
@@ -76,5 +87,9 @@ export const scrollToEdge = async (
 			break;
 	}
 
-	await scrollViewElem.scrollTo(edge, scrollPos?.[0] ?? 0.5, scrollPos?.[1] ?? 0.5);
+	await scrollViewElem.scrollTo(
+		edge,
+		scrollPos?.[0] ?? 0.5,
+		scrollPos?.[1] ?? 0.5,
+	);
 };

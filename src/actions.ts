@@ -38,6 +38,30 @@ export const waitForTap = async (
 };
 
 /**
+ * Waits for en element to be visible before replacing text in it.
+ * This is helpfull in case it needs a moment before appearing
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForReplaceText(by.id("test"), "some text");
+ * await waitForReplaceText(by.label("test"), "some text", { atIndex: 2 });
+ * await waitForReplaceText(element(by.id("test")), "some text");
+ */
+export const waitForReplaceText = async (
+	elementOrMatcher: DetoxElementsOrMatcher,
+	text: string,
+	options?: { atIndex?: number; timeout?: number; virtual?: boolean },
+) => {
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitForVisible(elem);
+
+	await elem.replaceText(text);
+};
+
+/**
  * Waits for scroll view to be visible and then scrolls to target
  * @example
  * await scrollToElement(by.id("scrollView"), by.id("button"), "bottom", 400);

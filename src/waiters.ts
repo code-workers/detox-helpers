@@ -26,17 +26,19 @@ export const waitForHittable = async (
 	);
 
 	const signal = AbortSignal.timeout(options?.timeout ?? DEFAULT_TIMEOUT * 3);
-	let hittable = false;
 	let finalError: unknown;
-	while (!hittable && !signal.aborted) {
+	while (!signal.aborted) {
 		try {
 			const attrsResponse = await elem.getAttributes();
 			const elementAttrs =
 				"elements" in attrsResponse
 					? attrsResponse.elements[options.atIndex ?? 0]
 					: attrsResponse;
-			hittable = "hittable" in elementAttrs ? elementAttrs.hittable : false;
-			finalError = undefined;
+			const hittable = "hittable" in elementAttrs ? elementAttrs : false;
+
+			if (hittable) {
+				return elementAttrs;
+			}
 		} catch (err) {
 			finalError = err;
 		}
@@ -45,7 +47,6 @@ export const waitForHittable = async (
 	if (signal.aborted || finalError) {
 		console.log("Error checking elem hittable", {
 			error: finalError,
-			hittable,
 			signalAborted: signal.aborted,
 			signalReason: signal.reason,
 		});

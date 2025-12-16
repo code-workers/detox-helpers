@@ -1,6 +1,10 @@
 import { waitFor } from "detox";
 import { cloneDeep } from "lodash";
-import { DEFAULT_TIMEOUT, makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
+import {
+	DEFAULT_TIMEOUT,
+	makeElementFromElementOrMatcher,
+	type DetoxElementsOrMatcher,
+} from "./internal-helpers";
 
 /**
  * Waits for en element to be hittable. This is useful if
@@ -13,27 +17,38 @@ import { DEFAULT_TIMEOUT, makeElementFromElementOrMatcher, type DetoxElementsOrM
  * await waitForExists(element(by.id("test")));
  */
 export const waitForHittable = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
 
-  const signal = AbortSignal.timeout(options?.timeout ?? 5000);
-  let hittable = false;
-  let finalError: unknown;
-  while (!hittable && !signal.aborted) {
-    try {
-      const attrs = await elem.getAttributes();
-      hittable = (attrs as { hittable?: boolean | unknown }).hittable === true;
-      finalError = undefined;
-    } catch (err) {
-      finalError = err;
-    }
-  }
+	const signal = AbortSignal.timeout(options?.timeout ?? DEFAULT_TIMEOUT);
+	let hittable = false;
+	let finalError: unknown;
+	while (!hittable && !signal.aborted) {
+		try {
+			const attrs = await elem.getAttributes();
+			hittable =
+				(attrs as { hittable?: boolean | unknown } | undefined)?.hittable ===
+				true;
+			finalError = undefined;
+		} catch (err) {
+			finalError = err;
+		}
+	}
 
-  if (signal.aborted || finalError) {
-    console.log("Error checking elem hittable", finalError);
-  }
+	if (signal.aborted || finalError) {
+		console.log("Error checking elem hittable", {
+			error: finalError,
+			hittable,
+			signalAborted: signal.aborted,
+			signalReason: signal.reason,
+		});
+		throw finalError || signal.reason;
+	}
 };
 
 /**
@@ -47,13 +62,16 @@ export const waitForHittable = async (
  * await waitForExists(element(by.id("test")));
  */
 export const waitForExists = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
-  await waitFor(elem)
-    .toExist()
-    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitFor(elem)
+		.toExist()
+		.withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };
 
 /**
@@ -67,13 +85,16 @@ export const waitForExists = async (
  * await waitForExwaitForNotExistsists(element(by.id("test")));
  */
 export const waitForNotExists = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
-  await waitFor(elem)
-    .not.toExist()
-    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitFor(elem)
+		.not.toExist()
+		.withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };
 
 /**
@@ -87,13 +108,16 @@ export const waitForNotExists = async (
  * await waitForVisible(element(by.id("test")));
  */
 export const waitForVisible = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
-  await waitFor(elem)
-    .toBeVisible()
-    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitFor(elem)
+		.toBeVisible()
+		.withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };
 
 /**
@@ -107,13 +131,16 @@ export const waitForVisible = async (
  * await waitForInvisible(element(by.id("test")));
  */
 export const waitForInvisible = async (
-  elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number }
+	elementOrMatcher: DetoxElementsOrMatcher,
+	options?: { atIndex?: number; timeout?: number },
 ) => {
-  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
-  await waitFor(elem)
-    .not.toBeVisible()
-    .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
+	const elem = makeElementFromElementOrMatcher(
+		elementOrMatcher,
+		options?.atIndex,
+	);
+	await waitFor(elem)
+		.not.toBeVisible()
+		.withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };
 
 /**
@@ -125,16 +152,19 @@ export const waitForInvisible = async (
  * await waitForCountVisible(element(by.id("test")), 5);
  */
 export const waitForCountVisible = async (
-  elementOrMatcher: Detox.IndexableNativeElement | Detox.NativeMatcher | Detox.NativeElement,
-  count: number
+	elementOrMatcher:
+		| Detox.IndexableNativeElement
+		| Detox.NativeMatcher
+		| Detox.NativeElement,
+	count: number,
 ) => {
-  for (let i = 0; i < count; i++) {
-    /**
-     * Reusing the same element with different indexes fails.
-     * I suspect that applying the index to a matcher which is required
-     * for this function mutates its internal state.
-     * For this reason, cloning it is required.
-     */
-    await waitForVisible(cloneDeep(elementOrMatcher), { atIndex: i });
-  }
+	for (let i = 0; i < count; i++) {
+		/**
+		 * Reusing the same element with different indexes fails.
+		 * I suspect that applying the index to a matcher which is required
+		 * for this function mutates its internal state.
+		 * For this reason, cloning it is required.
+		 */
+		await waitForVisible(cloneDeep(elementOrMatcher), { atIndex: i });
+	}
 };

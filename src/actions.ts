@@ -18,7 +18,7 @@ export const waitForTap = async (
   const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
 
   if (device.getPlatform() === "ios") {
-    await waitForHittable(elem);
+    await waitForHittable(elementOrMatcher, { atIndex: options?.atIndex });
   } else {
     await waitForVisible(elem);
   }
@@ -53,7 +53,7 @@ export const waitForReplaceText = async (
 ) => {
   const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
   if (device.getPlatform() === "ios") {
-    await waitForHittable(elem);
+    await waitForHittable(elementOrMatcher, { atIndex: options?.atIndex });
   } else {
     await waitForVisible(elem);
   }

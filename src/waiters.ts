@@ -3,6 +3,40 @@ import { cloneDeep } from "lodash";
 import { DEFAULT_TIMEOUT, makeElementFromElementOrMatcher, type DetoxElementsOrMatcher } from "./internal-helpers";
 
 /**
+ * Waits for en element to be hittable. This is useful if
+ * one wants to run tests without detox automatic sync feature.
+ * @param options.atIndex index of match to use in case of multiple matches
+ * @param options.timeout timeout in ms (default: 5000)
+ * @example
+ * await waitForExists(by.id("test"));
+ * await waitForExists(by.label("test"), { atIndex: 2 });
+ * await waitForExists(element(by.id("test")));
+ */
+export const waitForHittable = async (
+  elementOrMatcher: DetoxElementsOrMatcher,
+  options?: { atIndex?: number; timeout?: number }
+) => {
+  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
+
+  const signal = AbortSignal.timeout(options?.timeout ?? 5000);
+  let hittable = false;
+  let finalError: unknown;
+  while (!hittable && !signal.aborted) {
+    try {
+      const attrs = await elem.getAttributes();
+      hittable = (attrs as { hittable?: boolean | unknown }).hittable === true;
+      finalError = undefined;
+    } catch (err) {
+      finalError = err;
+    }
+  }
+
+  if (signal.aborted || finalError) {
+    console.log("Error checking elem hittable", finalError);
+  }
+};
+
+/**
  * Waits for en element to exist until a timeout. This is useful if
  * an element is not instantly created
  * @param options.atIndex index of match to use in case of multiple matches
@@ -34,15 +68,11 @@ export const waitForExists = async (
  */
 export const waitForNotExists = async (
   elementOrMatcher: DetoxElementsOrMatcher,
-  options?: { atIndex?: number; timeout?: number },
+  options?: { atIndex?: number; timeout?: number }
 ) => {
-  const elem = makeElementFromElementOrMatcher(
-    elementOrMatcher,
-    options?.atIndex,
-  );
+  const elem = makeElementFromElementOrMatcher(elementOrMatcher, options?.atIndex);
   await waitFor(elem)
-    .not
-    .toExist()
+    .not.toExist()
     .withTimeout(options?.timeout ?? DEFAULT_TIMEOUT);
 };
 

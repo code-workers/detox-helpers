@@ -2,7 +2,7 @@ import {
 	type DetoxElementsOrMatcher,
 	makeElementFromElementOrMatcher,
 } from "./internal-helpers";
-import { waitForExists, waitForVisible } from "./waiters";
+import { waitForExists, waitForHittable, waitForVisible } from "./waiters";
 
 /**
  * Waits for en element to be visible before tapping it.
@@ -22,7 +22,7 @@ export const waitForTap = async (
 		elementOrMatcher,
 		options?.atIndex,
 	);
-	await waitForVisible(elem);
+	await waitForHittable(elem);
 
 	if (options?.virtual) {
 		const { frame } = (await elem.getAttributes()) as {
@@ -56,7 +56,7 @@ export const waitForReplaceText = async (
 		elementOrMatcher,
 		options?.atIndex,
 	);
-	await waitForVisible(elem);
+	await waitForHittable(elem);
 
 	await elem.replaceText(text);
 };

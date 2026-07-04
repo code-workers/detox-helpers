@@ -23,26 +23,16 @@ export const waitForTap = async (
 		options?.atIndex,
 	);
 
-	let elementAttrs:
-		| Detox.IosElementAttributes
-		| Detox.AndroidElementAttributes
-		| undefined;
-	if (device.getPlatform() === "ios") {
-		elementAttrs = await waitForHittable(elementOrMatcher, {
+	if (options?.virtual) {
+		//device.tap() taps blind coordinates without any hittability check, so
+		//verify it explicitly before deriving the tap point
+		const elementAttrs = await waitForHittable(elementOrMatcher, {
 			atIndex: options?.atIndex,
 		});
-	} else {
-		await waitForVisible(elem);
-	}
-
-	if (options?.virtual) {
-		const usedAttrs =
-			elementAttrs ??
-			((await elem.getAttributes()) as {
-				//todo proper impl instead of forcing types
-				frame: { x: number; y: number; width: number; height: number };
-			});
-
+		const usedAttrs = (elementAttrs ?? (await elem.getAttributes())) as {
+			//todo proper impl instead of forcing types
+			frame: { x: number; y: number; width: number; height: number };
+		};
 		const { frame } = usedAttrs;
 
 		await device.tap({
@@ -50,6 +40,10 @@ export const waitForTap = async (
 			y: Math.round(frame.y + frame.height / 2),
 		});
 	} else {
+		//elem.tap() natively asserts hittability itself; waiting for visibility is
+		//enough and avoids waitForHittable's getAttributes polling, which pays an
+		//extra sync round-trip per tap
+		await waitForVisible(elem);
 		await elem.tap();
 	}
 };
@@ -73,11 +67,9 @@ export const waitForReplaceText = async (
 		elementOrMatcher,
 		options?.atIndex,
 	);
-	if (device.getPlatform() === "ios") {
-		await waitForHittable(elementOrMatcher, { atIndex: options?.atIndex });
-	} else {
-		await waitForVisible(elem);
-	}
+	//replaceText only needs the element present and visible; the hittability
+	//polling costs an extra sync round-trip per call
+	await waitForVisible(elem);
 
 	await elem.replaceText(text);
 };

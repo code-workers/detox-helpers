@@ -34,9 +34,7 @@ export const waitForHittable = async (
 				"elements" in attrsResponse
 					? attrsResponse.elements[options.atIndex ?? 0]
 					: attrsResponse;
-			const hittable = "hittable" in elementAttrs ? elementAttrs : false;
-
-			if (hittable) {
+			if ("hittable" in elementAttrs && elementAttrs.hittable) {
 				return elementAttrs;
 			}
 		} catch (err) {

@@ -1,6 +1,7 @@
 import {
 	type DetoxElementsOrMatcher,
 	makeElementFromElementOrMatcher,
+	pixelsPerDp,
 } from "./internal-helpers";
 import { waitForExists, waitForHittable, waitForVisible } from "./waiters";
 
@@ -24,20 +25,22 @@ export const waitForTap = async (
 	);
 
 	if (options?.virtual) {
-		//device.tap() taps blind coordinates without any hittability check, so
-		//verify it explicitly before deriving the tap point
-		const elementAttrs = await waitForHittable(elementOrMatcher, {
+		//device.tap() injects at blind coordinates: the point comes from the same reachability
+		//check a real tap passes, and is converted from the pixels of the attributes to the dp
+		//device.tap() takes on Android (iOS reports points on both sides)
+		const attributes = await waitForHittable(elementOrMatcher, {
 			atIndex: options?.atIndex,
+			timeout: options?.timeout,
 		});
-		const usedAttrs = (elementAttrs ?? (await elem.getAttributes())) as {
-			//todo proper impl instead of forcing types
-			frame: { x: number; y: number; width: number; height: number };
+		const point = attributes.hitPoint ?? {
+			x: attributes.frame.x + attributes.frame.width / 2,
+			y: attributes.frame.y + attributes.frame.height / 2,
 		};
-		const { frame } = usedAttrs;
+		const scale = await pixelsPerDp();
 
 		await device.tap({
-			x: Math.round(frame.x + frame.width / 2),
-			y: Math.round(frame.y + frame.height / 2),
+			x: Math.round(point.x / scale),
+			y: Math.round(point.y / scale),
 		});
 	} else {
 		//elem.tap() natively asserts hittability itself; waiting for visibility is

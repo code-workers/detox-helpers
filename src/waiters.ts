@@ -7,49 +7,31 @@ import {
 } from "./internal-helpers";
 
 /**
- * Waits for en element to be hittable. This is useful if
- * one wants to run tests without detox automatic sync feature.
+ * Waits for an element to be hittable — a tap would reach it — and returns its attributes.
+ * Polls natively through `toBeReachable()` (both platforms), so a timeout names what blocked the tap.
  * @param options.atIndex index of match to use in case of multiple matches
  * @param options.timeout timeout in ms (default: 15000)
  * @example
- * await waitForExists(by.id("test"));
- * await waitForExists(by.label("test"), { atIndex: 2 });
- * await waitForExists(element(by.id("test")));
+ * await waitForHittable(by.id("test"));
+ * await waitForHittable(by.label("test"), { atIndex: 2 });
+ * await waitForHittable(element(by.id("test")));
  */
 export const waitForHittable = async (
 	elementOrMatcher: DetoxElementsOrMatcher,
-	options: { atIndex: number | undefined; timeout?: number },
+	options?: { atIndex?: number; timeout?: number },
 ) => {
 	const elem = makeElementFromElementOrMatcher(
 		elementOrMatcher,
-		//for some reason getAttributes ignores atIndex, and returns an array if multiple values
+		options?.atIndex,
 	);
+	await waitFor(elem)
+		.toBeReachable()
+		.withTimeout(options?.timeout ?? DEFAULT_TIMEOUT * 3);
 
-	const signal = AbortSignal.timeout(options?.timeout ?? DEFAULT_TIMEOUT * 3);
-	let finalError: unknown;
-	while (!signal.aborted) {
-		try {
-			const attrsResponse = await elem.getAttributes();
-			const elementAttrs =
-				"elements" in attrsResponse
-					? attrsResponse.elements[options.atIndex ?? 0]
-					: attrsResponse;
-			if ("hittable" in elementAttrs && elementAttrs.hittable) {
-				return elementAttrs;
-			}
-		} catch (err) {
-			finalError = err;
-		}
-	}
-
-	if (signal.aborted || finalError) {
-		console.log("Error checking elem hittable", {
-			error: finalError,
-			signalAborted: signal.aborted,
-			signalReason: signal.reason,
-		});
-		throw finalError ?? new Error(signal.reason);
-	}
+	const attributes = await elem.getAttributes();
+	return "elements" in attributes
+		? attributes.elements[options?.atIndex ?? 0]
+		: attributes;
 };
 
 /**

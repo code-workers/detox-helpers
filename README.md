@@ -167,7 +167,9 @@ runs natively with reachability as its stop condition, so it stops where the tap
 where 75% of the view has entered the window — and when the container reaches its end with the
 target still out of reach the failure names the geometry (the hit point inside the navigation-bar
 inset, the view a touch is dispatched to instead). A settle wait covers an entrance animation
-still in flight.
+still in flight. With `in`, the target's existence is waited for before the search: a row the
+screen is still loading or a strip a write is about to answer with is a state to wait for, not a
+search that ends at the container's edge after zero attempts. `scrollToElement` waits the same way.
 
 | option | meaning |
 | --- | --- |

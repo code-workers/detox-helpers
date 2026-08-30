@@ -89,6 +89,10 @@ export const tapReachable = async (
 
 	if (options.in) {
 		await waitForScrollContainer(options.in);
+		// A target that has not mounted yet — a row the screen is still loading, a strip a write is about to
+		// answer with — is a state to wait for, not a search result: the search ends at once with "no such
+		// element" when the container is already at its edge.
+		await waitForExists(elem, { timeout: timeoutOf(options) });
 		await waitFor(elem)
 			.toBeReachable()
 			.whileElement(options.in)

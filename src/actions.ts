@@ -100,6 +100,8 @@ export const scrollToElement = async (
 			break;
 	}
 
+	// the search over a target that has not mounted yet ends at once at the container's edge; its arrival is waited for first
+	await waitForExists(targetElem);
 	await waitFor(targetElem)
 		.toBeVisible()
 		.whileElement(scrollView)
